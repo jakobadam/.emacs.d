@@ -1,0 +1,503 @@
+;; General Settings
+
+;; General Settings - Directory Location
+;; Normally, the user-emacs-directory stores everything in a .emacs.d
+;; directory in the home directory, however, Aquamacs overrides that, and
+;; since I now feel the need to use these settings for both editors (sure
+;; feels like XEmacs all over again).
+
+;; Any way, I have a new global variable for that:
+(defconst ha/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun ha/emacs-subdirectory (d) (expand-file-name d ha/emacs-directory))
+
+;; General settings - Directory Structure
+
+;; In case this is the first time running this on a computer, we need
+;; to make sure the following directories have been created.
+
+(let* ((subdirs '("elisp" "backups"))
+       (fulldirs (mapcar (lambda (d) (ha/emacs-subdirectory d)) subdirs)))
+  (dolist (dir fulldirs)
+    (when (not (file-exists-p dir))
+      (message "Make directory: %s" dir)
+      (make-directory dir))))
+
+;; General settings - Customization Section
+(setq custom-file (expand-file-name "custom.el" ha/emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
+;; General settings - Setting up the Load Path
+
+;; Extra packages not available via the package manager go in my
+;; personal stash at: $HOME/.emacs.d/elisp
+(add-to-list 'load-path (ha/emacs-subdirectory "elisp"))
+
+;; General Settings - Modernizing Emacs
+;; With a long history of working on small machines without gigabytes of
+;; RAM, we might as well let Emacs be the beast it has always dreamed.
+
+;; First, let’s increase the cache before starting garbage collection:
+(setq gc-cons-threshold 50000000)
+;; Found here how to remove the warnings from the GnuTLS library when
+;; using HTTPS… increase the minimum prime bits size:
+
+(setq gnutls-min-prime-bits 4096)
+;; Package Initialization
+;; Package Initialization - Package Manager
+(require 'package)
+
+(setq package-archives '(("org"       . "http://orgmode.org/elpa/")
+                         ("gnu"       . "http://elpa.gnu.org/packages/")
+                         ("melpa"     . "http://melpa.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")))
+
+(package-initialize)
+(package-refresh-contents)
+
+;; Package Initialization - Use-Package
+
+;; Using https://github.com/jwiegley/use-package to automatically
+;; install certain packages, as well as the ease of lazily loading
+;; them.
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(require 'use-package)
+
+;; Package Initialization - Init File Support
+
+;; Load up a collection of enhancements to Emacs Lisp, including
+;; dash, s for string manipulation, and f for file manipulation.
+(require 'cl)
+
+(use-package dash
+  :ensure t
+  :config (eval-after-load "dash" '(dash-enable-font-lock)))
+
+(use-package s
+  :ensure t)
+
+(use-package f
+  :ensure t)
+
+;; Variables
+
+;; General settings about me that other packages can use. The biggest
+;; problem is guessing my email address based on what computer I am
+;; using:
+(if (equal "guest-jdam" user-login-name)
+    (setq user-mail-address "jakob.dam@systematic.com")
+  (setq user-mail-address "jakob.a.dam@gmail.com"))
+
+;; Variables - Tabs vs Spaces
+
+;; I have learned to distrust tabs in my source code, so let’s make
+;; sure that we only have spaces. See this discussion for details.
+(setq-default indent-tabs-mode nil)
+(setq tab-width 2)
+
+;; Make tab key do indent first then completion.
+(setq-default tab-always-indent 'complete)
+
+;; Variables - Misc Variable Settings
+;; Does anyone type yes anymore?
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Fix the scrolling to keep point in the center:
+(setq scroll-conservatively 10000
+      scroll-preserve-screen-position t)
+
+;; Display Settings
+
+;; I’ve been using Emacs for many years, and appreciate a certain
+;; minimalist approach to its display. While you can turn these off
+;; with the menu items now, it is just as easy to set them here.
+(setq initial-scratch-message "") ;; Uh, I know what Scratch is for
+(setq visible-bell t)             ;; Get rid of the beeps
+
+(when (window-system)
+  (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+  (when (fboundp 'horizontal-scroll-bar-mode)
+    (horizontal-scroll-bar-mode -1))
+  (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+
+;; Display Settings - Whitespace Mode
+
+;; You don’t want this on all the time, but nice to turn it on every
+;; now and then:
+(use-package whitespace
+  :bind ("C-c T w" . whitespace-mode)
+  :init
+  (setq whitespace-line-column nil
+        whitespace-display-mappings '((space-mark 32 [183] [46])
+                                      (newline-mark 10 [9166 10])
+                                      (tab-mark 9 [9654 9] [92 9])))
+  :config
+  (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+  :diminish whitespace-mode)
+
+
+;; Display Settings - Fill Mode
+
+;; Automatically wrapping when you get to the end of a line (or the
+;; fill-region):
+(use-package fill
+  :bind (("C-c T f" . auto-fill-mode)
+         ("C-c T t" . toggle-truncate-lines))
+  :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+  :diminish auto-fill-mode)
+
+;; Key Bindings - Display Command Sequences
+(use-package which-key
+  :ensure t
+  :defer 10
+  :diminish which-key-mode
+  :config (which-key-mode 1))
+
+;; Key Bindings - Undo and Redo
+
+;; According to this article, I get better functionality than the
+;; redo+ plugin (which I can’t seem to get working well).
+
+(use-package undo-tree
+  :ensure t
+  :diminish undo-tree-mode
+  :init
+  (global-undo-tree-mode 1)
+  :config
+  (defalias 'redo 'undo-tree-redo)
+  :bind (("C-z" . undo)     ; Zap to character isn't helpful
+         ("C-S-z" . redo)))
+
+;; Key Bindings - Jumping to Windows
+
+;; Set up ace-window mode:
+(use-package ace-window
+  :ensure t
+  :init
+    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+    (global-set-key (kbd "C-x o") 'ace-window)
+    :diminish ace-window-mode)
+
+
+;; Key Bindings - Better Jumping
+
+;; Mostly using the avy project’s avy-goto-word-1 function, so I bind
+;; that to C-c j, but the recent update to include a timer feature,
+;; seems awful sweet:
+
+(use-package avy
+  :ensure t
+  :init (setq avy-background t)
+  :bind ("C-;" . avy-goto-char-timer))
+
+;; Key Bindings - Expand Region
+
+;; Wherever you are in a file, and whatever the type of file, you can
+;; slowly increase a region selection by logical segments by using
+;; Magnar’s expand-region project.
+
+;; However, the normal experience for expand-region is interactive,
+;; expected to be called repeatedly to expand and contract the regions
+;; based on syntax, and whatnot. Since I am seldom sure what I will
+;; select if I give this function a numeric prefix, I created a wrapper
+;; function that will (when given a number), just select the number of
+;; lines for the region. Select the current line with a 0 argument. No
+;; argument (well, lines is given 1 with no argument), then it just calls
+;; expand-region:
+(use-package expand-region
+  :ensure t
+  :config
+  (defun ha/expand-region (lines)
+    "Prefix-oriented wrapper around Magnar's `er/expand-region'.
+
+Call with LINES equal to 1 (given no prefix), it expands the
+region as normal.  When LINES given a positive number, selects
+the current line and number of lines specified.  When LINES is a
+negative number, selects the current line and the previous lines
+specified.  Select the current line if the LINES prefix is zero."
+    (interactive "p")
+    (cond ((= lines 1)   (er/expand-region 1))
+          ((< lines 0)   (ha/expand-previous-line-as-region lines))
+          (t             (ha/expand-next-line-as-region (1+ lines)))))
+
+  (defun ha/expand-next-line-as-region (lines)
+    (message "lines = %d" lines)
+    (beginning-of-line)
+    (set-mark (point))
+    (end-of-line lines))
+
+  (defun ha/expand-previous-line-as-region (lines)
+    (end-of-line)
+    (set-mark (point))
+    (beginning-of-line (1+ lines)))
+
+  :bind ("C-=" . ha/expand-region))
+
+;; Key Bindings - Block Wrappers
+
+;; But wrap-region is even more flexible. In most editors, selecting
+;; text and typing anything replaces the selected text (see the
+;; delete-selection-mode), but in this case, we can do something
+;; different… like wrapping:
+
+(use-package wrap-region
+  :ensure   t
+  :config
+  (wrap-region-global-mode t)
+  (wrap-region-add-wrappers
+   '(("(" ")")
+     ("[" "]")
+     ("{" "}")
+     ("<" ">")
+     ("'" "'")
+     ("\"" "\"")
+     ("_" "_")
+     ("‘" "’"   "q")
+     ("“" "”"   "Q")
+     ("**" "**" "b"   markdown-mode)            ; bolden
+     ("*" "*"   "i"   markdown-mode)            ; italics
+     ("`" "`"   "c" '(markdown-mode ruby-mode)) ; code
+     ("`" "'"   "c"   lisp-mode)                ; code
+     ))
+  :diminish wrap-region-mode)
+
+;; Loading and Finding Files - Projectile
+
+;; The Projectile project is a nifty way to run commands and search for
+;; files in a particular “project”. Its necessity is less now that IDO
+;; with flexible matching seems to always just find what I need.
+
+;; However, I really like the ability to search (with ag or grep)
+;; that is limited to the project:
+(use-package projectile
+  :ensure t
+  :init (projectile-global-mode 0)
+  :bind (("C-c p s" . projectile-ag)
+         ("C-c p g" . projectile-grep)
+         ("C-c p R" . projectile-regenerate-tags)))
+
+;; Projectile is currently causing grief to the rest of my system, and
+;; while trying to debug it, let’s turn it off:
+
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode
+  :init (projectile-global-mode 1)
+  :commands projectile-ag
+  :config
+  (setq projectile-switch-project-action 'projectile-commander
+        projectile-completion-system 'ido
+        projectile-create-missing-test-files t)
+  (add-to-list 'projectile-globally-ignored-files ".DS_Store")
+
+  (def-projectile-commander-method ?d
+    "Open project root in dired."
+    (projectile-dired))
+
+  (def-projectile-commander-method ?s
+    "Open a *shell* buffer for the project."
+    (projectile-run-shell))
+
+  (def-projectile-commander-method ?X
+    "Open a Direx buffer on the side."
+    (call-interactively #'ha/projectile-direx))
+
+  (def-projectile-commander-method ?F
+    "Git fetch."
+    (magit-status)
+    (call-interactively #'magit-fetch-current))
+
+  (def-projectile-commander-method ?j
+    "Jack-in with Cider."
+    (let* ((opts (projectile-current-project-files))
+           (file (ido-completing-read
+                  "Find file: "
+                  opts
+                  nil nil nil nil
+                  (car (cl-member-if
+                        (lambda (f)
+                          (string-match "core\\.clj\\'" f))
+                        opts)))))
+      (find-file (expand-file-name
+                  file (projectile-project-root)))
+      (run-hooks 'projectile-find-file-hook)
+      (cider-jack-in))))
+
+;; Much of the previous section came from this essay:
+;; http://endlessparentheses.com/improving-projectile-with-extra-commands.html
+
+;; Loading and finding files - Dired Options
+(use-package dired-launch
+  :ensure t
+  :config (setq dired-launch-default-launcher '("start"))
+  :init (dired-launch-enable)
+  )
+
+;; The dired-x project seems useful:
+;; https://www.masteringemacs.org/article/dired-shell-commands-find-xargs-replacement
+(use-package dired-x)
+
+
+;; Loading and finding files - IDO (Interactively DO Things)
+
+;; According to Mickey, IDO is the greatest thing.
+(use-package ido
+  :ensure t
+  :init  (setq ido-enable-flex-matching t
+               ido-ignore-extensions t
+               ido-use-virtual-buffers t
+               ido-everywhere t)
+  :config
+  (ido-mode 1)
+  (ido-everywhere 1)
+  (add-to-list 'completion-ignored-extensions ".pyc"))
+
+;; https://github.com/lewang/flx
+(use-package flx-ido
+   :ensure t
+   :init (setq ido-enable-flex-matching t
+               ido-use-faces nil)
+   :config (flx-ido-mode 1))
+
+;; https://github.com/creichert/ido-vertical-mode.el
+(use-package ido-vertical-mode
+  :ensure t
+  :init               ; I like up and down arrow keys:
+  (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
+  :config
+  (ido-vertical-mode 1))
+
+
+;; Loading and finding files - Editing Root Files
+
+;; Once I wrote a find-file-as-root function (graciously borrowed
+;; from Emacs Fu), however, bbatsov gave me a better idea to lend
+;; some advice to find-file, so that non-writable files would be
+;; automatically re-opened using the sudo feature of Tramp.
+
+;; My version works with both local and remotely access files:
+(defadvice ido-find-file (after find-file-sudo activate)
+  "Find file as root if necessary."
+  (unless (and buffer-file-name
+               (file-writable-p buffer-file-name))
+    (let* ((file-name (buffer-file-name))
+           (file-root (if (string-match "/ssh:\\([^:]+\\):\\(.*\\)" file-name)
+                          (concat "/ssh:"  (match-string 1 file-name)
+                                  "|sudo:" (match-string 1 file-name)
+                                  ":"      (match-string 2 file-name))
+                        (concat "/sudo:localhost:" file-name))))
+      (find-alternate-file file-root))))
+
+;; No special key-bindings, just load up a file, and if I can’t write
+;; it, it will automatically ask me for my credentials, and away I go.
+
+;; SMEX
+
+;; Built using IDO to do something similar but with M-x commands:
+(use-package smex
+  :ensure t
+  :init (smex-initialize)
+  :bind ("M-x" . smex)
+  ("M-X" . smex-major-mode-commands))
+
+;; Backup Settings
+
+;; This setting moves all backup files to a central location. Got it
+;; from this page.
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name
+                 (ha/emacs-subdirectory "backups")))))
+
+;; Tramp should do the same:
+(setq tramp-backup-directory-alist backup-directory-alist)
+
+;; Make backups of files, even when they’re in version control:
+(setq vc-make-backup-files t)
+
+;; And let’s make sure our files are saved if we wander off and
+;; defocus the Emacs application:
+(defun save-all ()
+  "Save all dirty buffers without asking for confirmation."
+  (interactive)
+  (save-some-buffers t))
+
+(add-hook 'focus-out-hook 'save-all)
+
+;; Auto Complete
+;; Using company-mode for all my auto completion needs.
+(use-package company
+  :ensure t
+  :init
+  (setq company-dabbrev-ignore-case t
+        company-show-numbers t)
+  (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (add-to-list 'company-backends 'company-math-symbols-unicode)
+  :bind ("C-:" . company-complete)  ; In case I don't want to wait
+  :diminish company-mode)
+
+;; Take advantage of idle time by displaying some documentation using
+;; company-quickhelp project.
+(use-package company-quickhelp
+  :ensure t
+  :config
+  (company-quickhelp-mode 1))
+
+;; Yasnippets
+
+;; The yasnippet project allows me to create snippets of code that can
+;; be brought into a file, based on the language.
+(use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1)
+  :config
+  (add-to-list 'yas-snippet-dirs (ha/emacs-subdirectory "snippets")))
+
+;; Note:: the snippets directory contains directories for each mode,
+;; e.g. clojure-mode and org-mode
+
+(setq-default ispell-program-name "aspell")
+
+;; (custom-set-variables '(ispell-program-name "C:\\cygwin64\\bin\\aspell.exe"))
+
+;; 
+(require 'setup-magit)
+(require 'setup-dired)
+(require 'my-javascript)
+(require 'my-html)
+(require 'my-bindings)
+
+;; Tools
+
+(use-package ido-completing-read+
+  :ensure t
+  )
+
+(use-package git-gutter
+  :ensure t
+  :init
+  (global-git-gutter-mode t)
+  )
+
+(defun is-in-terminal()
+    (not (display-graphic-p)))
+
+(use-package solarized-theme
+  :ensure t
+  :init
+  ;; Change Theme Hint: M-x load-theme soloarized-light
+  ;; don't load theme in terminal
+  (when (not (is-in-terminal))
+    (load-theme 'solarized-dark t))
+  )
+
+;; start server
+(server-start)
+
+(windmove-default-keybindings)
