@@ -13,6 +13,9 @@
 ;; Goto line
 (global-set-key (kbd "C-l") 'goto-line)
 
+(define-key global-map (kbd "C-+") 'text-scale-increase)
+(define-key global-map (kbd "C--") 'text-scale-decrease)
+
 (global-set-key (kbd "C-x C-r") 'find-alternate-file-with-sudo)
 
 ;; Turn on the menu bar for exploring new modes
