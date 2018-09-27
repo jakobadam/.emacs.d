@@ -462,6 +462,11 @@ specified.  Select the current line if the LINES prefix is zero."
 ;; Note:: the snippets directory contains directories for each mode,
 ;; e.g. clojure-mode and org-mode
 
+(use-package yafolding
+  :ensure t
+  :init (add-hook 'prog-mode-hook (lambda () (yafolding-mode)))
+  )
+
 (setq-default ispell-program-name "aspell")
 
 ;; (custom-set-variables '(ispell-program-name "C:\\cygwin64\\bin\\aspell.exe"))
@@ -471,6 +476,7 @@ specified.  Select the current line if the LINES prefix is zero."
 (require 'setup-dired)
 (require 'my-javascript)
 (require 'my-html)
+(require 'editing-defuns)
 (require 'my-bindings)
 
 ;; Tools
