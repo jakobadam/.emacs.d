@@ -462,10 +462,20 @@ specified.  Select the current line if the LINES prefix is zero."
 ;; Note:: the snippets directory contains directories for each mode,
 ;; e.g. clojure-mode and org-mode
 
+;; Code folding
+;; C-return - toggle element
+;; C-M-return - toggle all
+;; C-S-return - hide parent 
 (use-package yafolding
   :ensure t
   :init (add-hook 'prog-mode-hook (lambda () (yafolding-mode)))
   )
+
+;; https://editorconfig.org/
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
 
 (setq-default ispell-program-name "aspell")
 
