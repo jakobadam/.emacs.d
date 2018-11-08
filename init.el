@@ -458,6 +458,8 @@ specified.  Select the current line if the LINES prefix is zero."
   :config
   (add-to-list 'yas-snippet-dirs (ha/emacs-subdirectory "snippets")))
 
+(use-package yasnippet-snippets :ensure t)
+
 ;; Note:: the snippets directory contains directories for each mode,
 ;; e.g. clojure-mode and org-mode
 
