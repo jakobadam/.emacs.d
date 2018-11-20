@@ -265,6 +265,14 @@ specified.  Select the current line if the LINES prefix is zero."
      ))
   :diminish wrap-region-mode)
 
+;; Loading and Finding Files - Find file in project
+;; https://github.com/technomancy/find-file-in-project
+(use-package find-file-in-project
+  :ensure t
+  :bind ("S-C-n" . find-file-in-project)
+  ;; inspiration for more bindings https://github.com/magnars/.emacs.d/blob/5ff65739ebda23cfeffa6f70a3c7ecf49b6154ae/settings/key-bindings.el#L314
+  )
+
 ;; Loading and Finding Files - Projectile
 
 ;; The Projectile project is a nifty way to run commands and search for
@@ -488,6 +496,8 @@ specified.  Select the current line if the LINES prefix is zero."
 (require 'my-javascript)
 (require 'my-html)
 (require 'editing-defuns)
+(require 'buffer-defuns)
+
 (require 'my-bindings)
 
 ;; Tools

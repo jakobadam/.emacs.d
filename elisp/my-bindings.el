@@ -76,3 +76,8 @@
 
 ;; Override the indent on M-j
 (define-key js2-mode-map (kbd "M-j") 'backward-char)
+
+;; File finding
+(global-set-key (kbd "C-x M-f") 'ido-find-file-other-window)
+(global-set-key (kbd "C-x f") 'ido-recentf-open)
+
