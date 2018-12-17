@@ -1,29 +1,24 @@
 ;; General Settings
 
-;; General Settings - Directory Location
-;; Normally, the user-emacs-directory stores everything in a .emacs.d
-;; directory in the home directory, however, Aquamacs overrides that, and
-;; since I now feel the need to use these settings for both editors (sure
-;; feels like XEmacs all over again).
-
-;; Any way, I have a new global variable for that:
-(defconst ha/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
-(defun ha/emacs-subdirectory (d) (expand-file-name d ha/emacs-directory))
+(defconst jd/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun jd/emacs-subdirectory (d) (expand-file-name d jd/emacs-directory))
 
 ;; General settings - Directory Structure
 
 ;; In case this is the first time running this on a computer, we need
 ;; to make sure the following directories have been created.
 
-(let* ((subdirs '("elisp" "backups"))
-       (fulldirs (mapcar (lambda (d) (ha/emacs-subdirectory d)) subdirs)))
+(let* ((subdirs '("elisp" "backups" "savefile"))
+       (fulldirs (mapcar (lambda (d) (jd/emacs-subdirectory d)) subdirs)))
   (dolist (dir fulldirs)
     (when (not (file-exists-p dir))
       (message "Make directory: %s" dir)
       (make-directory dir))))
 
+(defconst savefile-dir (expand-file-name "savefile" jd/emacs-directory))
+
 ;; General settings - Customization Section
-(setq custom-file (expand-file-name "custom.el" ha/emacs-directory))
+(setq custom-file (expand-file-name "custom.el" jd/emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
 
@@ -31,19 +26,14 @@
 
 ;; Extra packages not available via the package manager go in my
 ;; personal stash at: $HOME/.emacs.d/elisp
-(add-to-list 'load-path (ha/emacs-subdirectory "elisp"))
+(add-to-list 'load-path (jd/emacs-subdirectory "elisp"))
 
-;; General Settings - Modernizing Emacs
-;; With a long history of working on small machines without gigabytes of
-;; RAM, we might as well let Emacs be the beast it has always dreamed.
-
-;; First, let’s increase the cache before starting garbage collection:
+;; Allow allocation of ~50MB before GC (from ~80KB)
 (setq gc-cons-threshold 50000000)
-;; Found here how to remove the warnings from the GnuTLS library when
-;; using HTTPS… increase the minimum prime bits size:
 
-(setq gnutls-min-prime-bits 4096)
-;; Package Initialization
+;; load .el if it's newer than .elc
+(setq load-prefer-newer t)
+
 ;; Package Initialization - Package Manager
 (require 'package)
 
@@ -211,7 +201,7 @@
 (use-package expand-region
   :ensure t
   :config
-  (defun ha/expand-region (lines)
+  (defun jd/expand-region (lines)
     "Prefix-oriented wrapper around Magnar's `er/expand-region'.
 
 Call with LINES equal to 1 (given no prefix), it expands the
@@ -221,21 +211,21 @@ negative number, selects the current line and the previous lines
 specified.  Select the current line if the LINES prefix is zero."
     (interactive "p")
     (cond ((= lines 1)   (er/expand-region 1))
-          ((< lines 0)   (ha/expand-previous-line-as-region lines))
-          (t             (ha/expand-next-line-as-region (1+ lines)))))
+          ((< lines 0)   (jd/expand-previous-line-as-region lines))
+          (t             (jd/expand-next-line-as-region (1+ lines)))))
 
-  (defun ha/expand-next-line-as-region (lines)
+  (defun jd/expand-next-line-as-region (lines)
     (message "lines = %d" lines)
     (beginning-of-line)
     (set-mark (point))
     (end-of-line lines))
 
-  (defun ha/expand-previous-line-as-region (lines)
+  (defun jd/expand-previous-line-as-region (lines)
     (end-of-line)
     (set-mark (point))
     (beginning-of-line (1+ lines)))
 
-  :bind ("C-=" . ha/expand-region))
+  :bind ("C-=" . jd/expand-region))
 
 ;; Key Bindings - Block Wrappers
 
@@ -418,7 +408,7 @@ specified.  Select the current line if the LINES prefix is zero."
 ;; from this page.
 (setq backup-directory-alist
       `(("." . ,(expand-file-name
-                 (ha/emacs-subdirectory "backups")))))
+                 (jd/emacs-subdirectory "backups")))))
 
 ;; Tramp should do the same:
 (setq tramp-backup-directory-alist backup-directory-alist)
@@ -456,25 +446,21 @@ specified.  Select the current line if the LINES prefix is zero."
   (company-quickhelp-mode 1))
 
 ;; Yasnippets
-
-;; The yasnippet project allows me to create snippets of code that can
-;; be brought into a file, based on the language.
 (use-package yasnippet
   :ensure t
   :init
   (yas-global-mode 1)
   :config
-  (add-to-list 'yas-snippet-dirs (ha/emacs-subdirectory "snippets")))
+  (add-to-list 'yas-snippet-dirs (jd/emacs-subdirectory "snippets")))
 
-(use-package yasnippet-snippets :ensure t)
-
-;; Note:: the snippets directory contains directories for each mode,
-;; e.g. clojure-mode and org-mode
+;; also load the snippets:)
+(use-package yasnippet-snippets
+  :ensure t)
 
 ;; Code folding
 ;; C-return - toggle element
 ;; C-M-return - toggle all
-;; C-S-return - hide parent 
+;; C-S-return - hide parent
 (use-package yafolding
   :ensure t
   :init (add-hook 'prog-mode-hook (lambda () (yafolding-mode)))
