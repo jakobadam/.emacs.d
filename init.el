@@ -85,8 +85,7 @@
 
 ;; Variables - Tabs vs Spaces
 
-;; I have learned to distrust tabs in my source code, so let’s make
-;; sure that we only have spaces. See this discussion for details.
+;; Only use spaces
 (setq-default indent-tabs-mode nil)
 (setq tab-width 2)
 
@@ -102,36 +101,27 @@
       scroll-preserve-screen-position t)
 
 ;; Display Settings
-
-;; I’ve been using Emacs for many years, and appreciate a certain
-;; minimalist approach to its display. While you can turn these off
-;; with the menu items now, it is just as easy to set them here.
+(setq inhibit-startup-screen t)
 (setq initial-scratch-message "") ;; Uh, I know what Scratch is for
 (setq visible-bell t)             ;; Get rid of the beeps
 
 (when (window-system)
-  (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+  (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
   (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
 
 ;; Display Settings - Whitespace Mode
 
-;; You don’t want this on all the time, but nice to turn it on every
-;; now and then:
 (use-package whitespace
-  :bind ("C-c T w" . whitespace-mode)
   :init
-  (setq whitespace-line-column nil
-        whitespace-display-mappings '((space-mark 32 [183] [46])
-                                      (newline-mark 10 [9166 10])
-                                      (tab-mark 9 [9654 9] [92 9])))
+  (dolist (hook '(prog-mode-hook text-mode-hook))
+    (add-hook hook 'whitespace-mode))
+  ;; cool, but can't do that for the current project
+  ;;(add-hook 'before-save-hook 'whitespace-cleanup)
   :config
-  (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
-  (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
-  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
-  :diminish whitespace-mode)
-
+  (setq whitespace-line-column 80) ;; limit line length
+  (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
 ;; Display Settings - Fill Mode
 
@@ -166,22 +156,12 @@
          ("C-S-z" . redo)))
 
 ;; Key Bindings - Jumping to Windows
-
-;; Set up ace-window mode:
 (use-package ace-window
   :ensure t
-  :init
-    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
-    (global-set-key (kbd "C-x o") 'ace-window)
-    :diminish ace-window-mode)
-
+  :config
+  (global-set-key [remap other-window] 'ace-window))
 
 ;; Key Bindings - Better Jumping
-
-;; Mostly using the avy project’s avy-goto-word-1 function, so I bind
-;; that to C-c j, but the recent update to include a timer feature,
-;; seems awful sweet:
-
 (use-package avy
   :ensure t
   :init (setq avy-background t)
@@ -266,75 +246,21 @@ specified.  Select the current line if the LINES prefix is zero."
   ;; inspiration for more bindings https://github.com/magnars/.emacs.d/blob/5ff65739ebda23cfeffa6f70a3c7ecf49b6154ae/settings/key-bindings.el#L314
   )
 
-;; Loading and Finding Files - Projectile
-
-;; The Projectile project is a nifty way to run commands and search for
-;; files in a particular “project”. Its necessity is less now that IDO
-;; with flexible matching seems to always just find what I need.
-
-;; However, I really like the ability to search (with ag or grep)
-;; that is limited to the project:
 (use-package projectile
   :ensure t
-  :init (projectile-global-mode 0)
-  :bind (("C-c p s" . projectile-ag)
-         ("C-c p g" . projectile-grep)
-         ("C-c p R" . projectile-regenerate-tags)))
-
-;; Projectile is currently causing grief to the rest of my system, and
-;; while trying to debug it, let’s turn it off:
-
-(use-package projectile
-  :ensure t
-  :diminish projectile-mode
-  :init (projectile-global-mode 1)
-  :commands projectile-ag
+  :init
+  (setq projectile-completion-system 'ivy)
   :config
-  (setq projectile-switch-project-action 'projectile-commander
-        projectile-completion-system 'ido
-        projectile-create-missing-test-files t)
-  (add-to-list 'projectile-globally-ignored-files ".DS_Store")
-
-  (def-projectile-commander-method ?d
-    "Open project root in dired."
-    (projectile-dired))
-
-  (def-projectile-commander-method ?s
-    "Open a *shell* buffer for the project."
-    (projectile-run-shell))
-
-  (def-projectile-commander-method ?X
-    "Open a Direx buffer on the side."
-    (call-interactively #'ha/projectile-direx))
-
-  (def-projectile-commander-method ?F
-    "Git fetch."
-    (magit-status)
-    (call-interactively #'magit-fetch-current))
-
-  (def-projectile-commander-method ?j
-    "Jack-in with Cider."
-    (let* ((opts (projectile-current-project-files))
-           (file (ido-completing-read
-                  "Find file: "
-                  opts
-                  nil nil nil nil
-                  (car (cl-member-if
-                        (lambda (f)
-                          (string-match "core\\.clj\\'" f))
-                        opts)))))
-      (find-file (expand-file-name
-                  file (projectile-project-root)))
-      (run-hooks 'projectile-find-file-hook)
-      (cider-jack-in))))
-
-;; Much of the previous section came from this essay:
-;; http://endlessparentheses.com/improving-projectile-with-extra-commands.html
+  ;;(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (projectile-mode +1))
 
 ;; Loading and finding files - Dired Options
 (use-package dired-launch
   :ensure t
-  :config (setq dired-launch-default-launcher '("start"))
+  :config (when (eq system-type 'windows-nt)
+            (setq dired-launch-default-launcher '("start")))
+  
+  
   :init (dired-launch-enable)
   )
 
