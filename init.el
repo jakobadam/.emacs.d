@@ -42,7 +42,10 @@
                          ("melpa"     . "http://melpa.org/packages/")))
 
 (package-initialize)
-(package-refresh-contents)
+
+;; only update the package list of not present
+(unless package-archive-contents
+  (package-refresh-contents))
 
 ;; Package Initialization - Use-Package
 
