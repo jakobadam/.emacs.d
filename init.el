@@ -1,13 +1,8 @@
 ;; General Settings
-
 (defconst jd/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
 (defun jd/emacs-subdirectory (d) (expand-file-name d jd/emacs-directory))
 
 ;; General settings - Directory Structure
-
-;; In case this is the first time running this on a computer, we need
-;; to make sure the following directories have been created.
-
 (let* ((subdirs '("elisp" "backups" "savefile"))
        (fulldirs (mapcar (lambda (d) (jd/emacs-subdirectory d)) subdirs)))
   (dolist (dir fulldirs)
@@ -34,31 +29,35 @@
 ;; load .el if it's newer than .elc
 (setq load-prefer-newer t)
 
+;; General settings - Backup
+;; Move all backup files to a central location.
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name
+                 (jd/emacs-subdirectory "backups")))))
+
+;; Tramp should do the same:
+(setq tramp-backup-directory-alist backup-directory-alist)
+
+;; Make backups of files, even when they’re in version control:
+(setq vc-make-backup-files t)
+
 ;; Package Initialization - Package Manager
 (require 'package)
-
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
                          ("gnu"       . "http://elpa.gnu.org/packages/")
                          ("melpa"     . "http://melpa.org/packages/")))
-
 (package-initialize)
 
-;; only update the package list of not present
+;; only update the package list if not already downloaded
 (unless package-archive-contents
   (package-refresh-contents))
 
 ;; Package Initialization - Use-Package
-
-;; Using https://github.com/jwiegley/use-package to automatically
-;; install certain packages, as well as the ease of lazily loading
-;; them.
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
 (require 'use-package)
-
-;; Package Initialization - Init File Support
 
 ;; Load up a collection of enhancements to Emacs Lisp, including
 ;; dash, s for string manipulation, and f for file manipulation.
@@ -75,15 +74,10 @@
   :ensure t)
 
 ;; Variables
-
-;; General settings about me that other packages can use. The biggest
-;; problem is guessing my email address based on what computer I am
-;; using:
+;;
 (if (equal "guest-jdam" user-login-name)
     (setq user-mail-address "jakob.dam@systematic.com")
   (setq user-mail-address "jakob.a.dam@gmail.com"))
-
-;; Variables - Tabs vs Spaces
 
 ;; Only use spaces
 (setq-default indent-tabs-mode nil)
@@ -92,7 +86,6 @@
 ;; Make tab key do indent first then completion.
 (setq-default tab-always-indent 'complete)
 
-;; Variables - Misc Variable Settings
 ;; Does anyone type yes anymore?
 (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -102,8 +95,8 @@
 
 ;; Display Settings
 (setq inhibit-startup-screen t)
-(setq initial-scratch-message "") ;; Uh, I know what Scratch is for
-(setq visible-bell t)             ;; Get rid of the beeps
+(setq initial-scratch-message "")
+(setq visible-bell t)
 
 (when (window-system)
   (tool-bar-mode 0)
@@ -167,56 +160,7 @@
   :init (setq avy-background t)
   :bind ("C-;" . avy-goto-char-timer))
 
-;; Key Bindings - Expand Region
-
-;; Wherever you are in a file, and whatever the type of file, you can
-;; slowly increase a region selection by logical segments by using
-;; Magnar’s expand-region project.
-
-;; However, the normal experience for expand-region is interactive,
-;; expected to be called repeatedly to expand and contract the regions
-;; based on syntax, and whatnot. Since I am seldom sure what I will
-;; select if I give this function a numeric prefix, I created a wrapper
-;; function that will (when given a number), just select the number of
-;; lines for the region. Select the current line with a 0 argument. No
-;; argument (well, lines is given 1 with no argument), then it just calls
-;; expand-region:
-(use-package expand-region
-  :ensure t
-  :config
-  (defun jd/expand-region (lines)
-    "Prefix-oriented wrapper around Magnar's `er/expand-region'.
-
-Call with LINES equal to 1 (given no prefix), it expands the
-region as normal.  When LINES given a positive number, selects
-the current line and number of lines specified.  When LINES is a
-negative number, selects the current line and the previous lines
-specified.  Select the current line if the LINES prefix is zero."
-    (interactive "p")
-    (cond ((= lines 1)   (er/expand-region 1))
-          ((< lines 0)   (jd/expand-previous-line-as-region lines))
-          (t             (jd/expand-next-line-as-region (1+ lines)))))
-
-  (defun jd/expand-next-line-as-region (lines)
-    (message "lines = %d" lines)
-    (beginning-of-line)
-    (set-mark (point))
-    (end-of-line lines))
-
-  (defun jd/expand-previous-line-as-region (lines)
-    (end-of-line)
-    (set-mark (point))
-    (beginning-of-line (1+ lines)))
-
-  :bind ("C-=" . jd/expand-region))
-
-;; Key Bindings - Block Wrappers
-
-;; But wrap-region is even more flexible. In most editors, selecting
-;; text and typing anything replaces the selected text (see the
-;; delete-selection-mode), but in this case, we can do something
-;; different… like wrapping:
-
+;; Wrap selected text
 (use-package wrap-region
   :ensure   t
   :config
@@ -259,8 +203,6 @@ specified.  Select the current line if the LINES prefix is zero."
   :ensure t
   :config (when (eq system-type 'windows-nt)
             (setq dired-launch-default-launcher '("start")))
-
-
   :init (dired-launch-enable)
   )
 
@@ -268,18 +210,6 @@ specified.  Select the current line if the LINES prefix is zero."
 ;; https://www.masteringemacs.org/article/dired-shell-commands-find-xargs-replacement
 (use-package dired-x)
 
-
-;; Backup Settings
-;; This setting moves all backup files to a central location.
-(setq backup-directory-alist
-      `(("." . ,(expand-file-name
-                 (jd/emacs-subdirectory "backups")))))
-
-;; Tramp should do the same:
-(setq tramp-backup-directory-alist backup-directory-alist)
-
-;; Make backups of files, even when they’re in version control:
-(setq vc-make-backup-files t)
 
 ;; Save buffers on de-focus
 (use-package super-save
@@ -510,16 +440,14 @@ specified.  Select the current line if the LINES prefix is zero."
   (global-git-gutter-mode t)
   )
 
-(defun is-in-terminal()
-    (not (display-graphic-p)))
-
+;; Change Theme Hint: M-x load-theme solarized-light
 (use-package solarized-theme
   :ensure t
   :init
-  ;; Change Theme Hint: M-x load-theme soloarized-light
   ;; don't load theme in terminal
-  (when (not (is-in-terminal))
-    (load-theme 'solarized-dark t))
+  (when (window-system)
+    (load-theme 'solarized-dark t)
+    )
   )
 
 ;; start server
