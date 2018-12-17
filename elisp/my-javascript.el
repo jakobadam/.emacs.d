@@ -1,11 +1,5 @@
 (provide 'my-javascript)
 
-;; JS2 Mode
-
-;;  I like the extras found in
-;;  [[http://www.emacswiki.org/emacs-test/SteveYegge][Steve Yegge]]'s
-;;  [[https://github.com/mooz/js2-mode][js2-mode]].
-
 (use-package js2-mode
   :ensure t
   :init
@@ -24,30 +18,13 @@
 
   (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode)))
 
-;; Color /defined/ variables with
-;; [[https://github.com/ankurdave/color-identifiers-mode][color-identifiers-mode]]:
-
-(use-package color-identifiers-mode
-  :ensure t
-  :init
-  (add-hook 'js2-mode-hook 'color-identifiers-mode))
-
 ;; Flycheck and JSHint
-
-;;  While editing JavaScript is baked into Emacs, it is quite
-;;  important to have [[http://flycheck.readthedocs.org/][flycheck]]
-;;  validate the source based on [[http://www.jshint.com/][jshint]],
-;;  and [[https://github.com/eslint/eslint][eslint]]. Let’s prefer =eslint=:
-
 (add-hook 'js2-mode-hook
           (lambda () (flycheck-select-checker "javascript-eslint")))
 
-;;  Now load and edit a JavaScript file, like [[file:~/jshint-code-test.js][jshint-code-test.js]].
+;; Override the indent on M-j
+(define-key js2-mode-map (kbd "M-j") 'backward-char)
 
-;; Tern
-
-;;  The [[http://ternjs.net/doc/manual.html#emacs][Tern]] project is a JavaScript analyzer that can be used to
-;;  improve the JavaScript integration with editors like Emacs.
 
 (use-package tern
   :ensure t
@@ -104,9 +81,9 @@
 ;; I also configure Skewer for my [[file:emacs-web.org][HTML and CSS]]
 ;; files, we need to do the same for JavaScript:
 
-(use-package skewer-mode
-  :ensure t
-  :init (add-hook 'js2-mode-hook 'skewer-mode))
+;; (use-package skewer-mode
+;;   :ensure t
+;;   :init (add-hook 'js2-mode-hook 'skewer-mode))
 
  ;;  Kick things off with =run-skewer=, and then:
 

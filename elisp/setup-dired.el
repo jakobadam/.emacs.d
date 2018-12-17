@@ -5,11 +5,12 @@
 
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Wdired.html
 
-(use-package dired-details :ensure t)
+;; Not available in packages anymore...
+;;(use-package dired-details :ensure t)
 
 ;; Make dired less verbose
 (setq-default dired-details-hidden-string "--- ")
-(dired-details-install)
+;;(dired-details-install)
 
 ;; Move files between split panes
 (setq dired-dwim-target t)

@@ -9,10 +9,10 @@
 ;; (use-package ac-haml)
 ;; (use-package ac-html-default-data-provider)
 
-;; (defun my-html-mode-hook ()
-;;   (turn-off-auto-fill)
-;;   (emmet-mode)
-;;   (rainbow-mode 1)
+(defun my-html-mode-hook ()
+   (turn-off-auto-fill)
+   (emmet-mode)
+   (rainbow-mode 1)
 
 ;;   (ac-html-enable-data-provider 'ac-html-default-data-provider)
 ;;   (ac-html-setup)
@@ -29,15 +29,14 @@
 
 ;;   ;; 2 spaces indent
 ;;   (setq sgml-basic-offset 2)
+)
 
-;; )
 
-
-;; (defun my-css-mode-hook ()
-;;   (rainbow-mode 1)
-;;   (emmet-mode)
-;;   (flymake-css-load)
-;;   )
+(defun my-css-mode-hook ()
+   (rainbow-mode 1)
+   (emmet-mode)
+   (flymake-css-load)
+)
 
 ;; (defun my-scss-mode-hook ()
 ;;   (rainbow-mode 1)
@@ -48,9 +47,9 @@
 
 ;; (autoload 'scss-mode "scss-mode")
 
-;; (add-hook 'sgml-mode-hook 'my-html-mode-hook)
-;; ;;(add-hook 'haml-mode-hook 'my-html-mode-hook)
+(add-hook 'sgml-mode-hook 'my-html-mode-hook)
+(add-hook 'haml-mode-hook 'my-html-mode-hook)
 
-;; (add-hook 'css-mode-hook 'my-css-mode-hook)
-;; (add-hook 'scss-mode 'my-scss-mode-hook)
+(add-hook 'css-mode-hook 'my-css-mode-hook)
+(add-hook 'scss-mode 'my-scss-mode-hook)
 

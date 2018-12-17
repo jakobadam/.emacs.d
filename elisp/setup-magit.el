@@ -1,5 +1,12 @@
 (provide 'setup-magit)
 
+;; full screen magit-status
+(defun magit-status-fullscreen (prefix)
+  (interactive "P")
+  (magit-status)
+  (unless prefix
+    (delete-other-windows)))
+
 (use-package magit
   :ensure t
   :commands magit-status magit-blame
@@ -13,20 +20,13 @@
   :config
   (setq magit-branch-arguments nil
         ;; use ido to look for branches
-        magit-completing-read-function 'magit-ido-completing-read
+        magit-completing-read-function 'ivy-completing-read
         ;; don't put "origin-" in front of new branch names by default
         magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
         magit-push-always-verify nil
         ;; Get rid of the previous advice to go into fullscreen
         magit-restore-window-configuration t)
-  :bind ("C-x g" . magit-status))
-
-;; full screen magit-status
-(defun magit-status-fullscreen (prefix)
-  (interactive "P")
-  (magit-status)
-  (unless prefix
-    (delete-other-windows)))
+  :bind ("C-x g" . magit-status-fullscreen))
 
 ;; don't prompt me
 
@@ -36,7 +36,6 @@
 ;;                                  unstage-all-changes))
 
 ;; move cursor into position when entering commit message
-
 (defun my/magit-cursor-fix ()
   (beginning-of-buffer)
   (when (looking-at "#")
@@ -45,7 +44,6 @@
 (add-hook 'git-commit-mode-hook 'my/magit-cursor-fix)
 
 ;; full screen vc-annotate
-
 (defun vc-annotate-quit ()
   "Restores the previous window configuration and kills the vc-annotate buffer"
   (interactive)
