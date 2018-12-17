@@ -259,8 +259,8 @@ specified.  Select the current line if the LINES prefix is zero."
   :ensure t
   :config (when (eq system-type 'windows-nt)
             (setq dired-launch-default-launcher '("start")))
-  
-  
+
+
   :init (dired-launch-enable)
   )
 
@@ -269,72 +269,8 @@ specified.  Select the current line if the LINES prefix is zero."
 (use-package dired-x)
 
 
-;; Loading and finding files - IDO (Interactively DO Things)
-
-;; According to Mickey, IDO is the greatest thing.
-(use-package ido
-  :ensure t
-  :init  (setq ido-enable-flex-matching t
-               ido-ignore-extensions t
-               ido-use-virtual-buffers t
-               ido-everywhere t)
-  :config
-  (ido-mode 1)
-  (ido-everywhere 1)
-  (add-to-list 'completion-ignored-extensions ".pyc"))
-
-;; https://github.com/lewang/flx
-(use-package flx-ido
-   :ensure t
-   :init (setq ido-enable-flex-matching t
-               ido-use-faces nil)
-   :config (flx-ido-mode 1))
-
-;; https://github.com/creichert/ido-vertical-mode.el
-(use-package ido-vertical-mode
-  :ensure t
-  :init               ; I like up and down arrow keys:
-  (setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
-  :config
-  (ido-vertical-mode 1))
-
-
-;; Loading and finding files - Editing Root Files
-
-;; Once I wrote a find-file-as-root function (graciously borrowed
-;; from Emacs Fu), however, bbatsov gave me a better idea to lend
-;; some advice to find-file, so that non-writable files would be
-;; automatically re-opened using the sudo feature of Tramp.
-
-;; My version works with both local and remotely access files:
-(defadvice ido-find-file (after find-file-sudo activate)
-  "Find file as root if necessary."
-  (unless (and buffer-file-name
-               (file-writable-p buffer-file-name))
-    (let* ((file-name (buffer-file-name))
-           (file-root (if (string-match "/ssh:\\([^:]+\\):\\(.*\\)" file-name)
-                          (concat "/ssh:"  (match-string 1 file-name)
-                                  "|sudo:" (match-string 1 file-name)
-                                  ":"      (match-string 2 file-name))
-                        (concat "/sudo:localhost:" file-name))))
-      (find-alternate-file file-root))))
-
-;; No special key-bindings, just load up a file, and if I can’t write
-;; it, it will automatically ask me for my credentials, and away I go.
-
-;; SMEX
-
-;; Built using IDO to do something similar but with M-x commands:
-(use-package smex
-  :ensure t
-  :init (smex-initialize)
-  :bind ("M-x" . smex)
-  ("M-X" . smex-major-mode-commands))
-
 ;; Backup Settings
-
-;; This setting moves all backup files to a central location. Got it
-;; from this page.
+;; This setting moves all backup files to a central location.
 (setq backup-directory-alist
       `(("." . ,(expand-file-name
                  (jd/emacs-subdirectory "backups")))))
@@ -345,17 +281,59 @@ specified.  Select the current line if the LINES prefix is zero."
 ;; Make backups of files, even when they’re in version control:
 (setq vc-make-backup-files t)
 
-;; And let’s make sure our files are saved if we wander off and
-;; defocus the Emacs application:
-(defun save-all ()
-  "Save all dirty buffers without asking for confirmation."
-  (interactive)
-  (save-some-buffers t))
+;; Save buffers on de-focus
+(use-package super-save
+  :ensure t
+  :config
+  (super-save-mode +1))
 
-(add-hook 'focus-out-hook 'save-all)
+(use-package flx
+  :ensure t)
+
+(use-package ivy-hydra
+  :ensure t)
+
+;; TODO: When renaming ivy should be disabled, for now use C-M-j
+(use-package ivy
+  :ensure t
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  ;; use fuzzy match for everything except swiper
+  ;; Change matching: C-o m
+  (setq ivy-re-builders-alist
+        '((swiper . ivy--regex-plus)
+          (t      . ivy--regex-fuzzy)
+          ))
+  (setq ivy-initial-inputs-alist nil)
+  (setq enable-recursive-minibuffers t)
+  ;;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+  )
+
+(use-package swiper
+  :ensure t
+  :config
+  (global-set-key "\C-s" 'swiper)
+  )
+
+(use-package counsel
+  :ensure t
+  :config
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-m") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c a") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 
 ;; Auto Complete
-;; Using company-mode for all my auto completion needs.
 (use-package company
   :ensure t
   :init
@@ -401,11 +379,122 @@ specified.  Select the current line if the LINES prefix is zero."
   :config
   (editorconfig-mode 1))
 
-(setq-default ispell-program-name "aspell")
+;; Grey out everything else than highligt region C-x n n, C-x n w
+(use-package fancy-narrow
+  :ensure t)
 
-;; (custom-set-variables '(ispell-program-name "C:\\cygwin64\\bin\\aspell.exe"))
+;; always show matching paren
+(use-package paren
+  :config
+  (show-paren-mode +1))
 
-;; 
+;; saveplace remembers your location in a file when saving files
+(use-package saveplace
+  :config
+  (setq save-place-file (expand-file-name "saveplace" savefile-dir))
+  ;; activate it for all buffers
+  (setq-default save-place t))
+
+;; save minibuffer hist and friends
+(use-package savehist
+  :config
+  (setq savehist-additional-variables
+        ;; search entries
+        '(search-ring regexp-search-ring)
+        ;; save every minute
+        savehist-autosave-interval 60
+        ;; keep the home clean
+        savehist-file (expand-file-name "savehist" savefile-dir))
+  (savehist-mode +1))
+
+(use-package recentf
+  :config
+  (setq recentf-save-file (expand-file-name "recentf" savefile-dir)
+        recentf-max-saved-items 500
+        recentf-max-menu-items 15
+        ;; disable recentf-cleanup on Emacs start, because it can cause
+        ;; problems with remote files
+        recentf-auto-cleanup 'never)
+  (recentf-mode +1))
+
+;; Move code blocks with M-S
+(use-package move-text
+  :ensure t
+  :bind
+  (([(meta shift up)] . move-text-up)
+   ([(meta shift i)] . move-text-up)
+   ([(meta shift down)] . move-text-down)
+   ([(meta shift k)] . move-text-down)))
+
+;; Different colors on delimiters...
+(use-package rainbow-delimiters
+  :ensure t
+  :config (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  )
+
+;; Colorize #0000ff
+(use-package rainbow-mode
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'rainbow-mode))
+
+;; nicer ui for query replace
+(use-package anzu
+  :ensure t
+  :bind (("M-%" . anzu-query-replace)
+         ("C-M-%" . anzu-query-replace-regexp))
+  :config
+  (global-anzu-mode))
+
+(use-package flyspell
+  :config
+  ;; not needed - When Cygwin is in path
+  ;; (when (eq system-type 'windows-nt)
+  ;;   (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/"))
+  (setq ispell-program-name "aspell" ; use aspell instead of ispell
+        ispell-extra-args '("--sug-mode=ultra"))
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  ;; Don't interfere with avy
+  (define-key flyspell-mode-map (kbd "C-;") nil)
+  )
+
+(use-package markdown-mode
+  :ensure t
+  :mode (("\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . gfm-mode))
+  :config
+  (setq markdown-fontify-code-blocks-natively t))
+
+
+(use-package crux
+  :ensure t
+  :bind (("C-c o" . crux-open-with)
+         ;;("M-o" . crux-smart-open-line)
+         ("C-c n" . crux-cleanup-buffer-or-region)
+         ("C-c f" . crux-recentf-find-file)
+         ("C-M-z" . crux-indent-defun)
+         ("C-c u" . crux-view-url)
+         ("C-c e" . crux-eval-and-replace)
+         ("C-c w" . crux-swap-windows)
+         ("C-c D" . crux-delete-file-and-buffer)
+         ("C-c r" . crux-rename-buffer-and-file)
+         ("C-c t" . crux-visit-term-buffer)
+         ("C-c k" . crux-kill-other-buffers)
+         ("C-c TAB" . crux-indent-rigidly-and-copy-to-clipboard)
+         ("C-c I" . crux-find-user-init-file)
+         ("C-c S" . crux-find-shell-init-file)
+         ("s-j" . crux-top-join-line)
+         ("C-^" . crux-top-join-line)
+         ("s-k" . crux-kill-whole-line)
+         ("C-<backspace>" . crux-kill-line-backwards)
+         ("s-o" . crux-smart-open-line-above)
+         ([remap move-beginning-of-line] . crux-move-beginning-of-line)
+         ([(shift return)] . crux-smart-open-line)
+         ([(control shift return)] . crux-smart-open-line-above)
+         ([remap kill-whole-line] . crux-kill-whole-line)
+         ("C-c s" . crux-ispell-word-then-abbrev)))
+
 (require 'setup-magit)
 (require 'setup-dired)
 (require 'my-javascript)
@@ -414,12 +503,6 @@ specified.  Select the current line if the LINES prefix is zero."
 (require 'buffer-defuns)
 
 (require 'my-bindings)
-
-;; Tools
-
-(use-package ido-completing-read+
-  :ensure t
-  )
 
 (use-package git-gutter
   :ensure t
