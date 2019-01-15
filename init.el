@@ -151,8 +151,11 @@
 ;; Key Bindings - Jumping to Windows
 (use-package ace-window
   :ensure t
-  :config
-  (global-set-key [remap other-window] 'ace-window))
+  :init
+    ;; use home rows for window selection
+    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+    (global-set-key (kbd "C-x o") 'ace-window)
+    :diminish ace-window-mode)
 
 ;; Key Bindings - Better Jumping
 (use-package avy
