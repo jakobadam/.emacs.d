@@ -266,7 +266,7 @@
   (global-set-key (kbd "C-x l") 'counsel-locate)
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 
-;; Auto Complete
+;; Auto Complete - M-n M-p or M-1 to select
 (use-package company
   :ensure t
   :init
@@ -427,6 +427,13 @@
          ([(control shift return)] . crux-smart-open-line-above)
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c s" . crux-ispell-word-then-abbrev)))
+
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 (require 'setup-magit)
 (require 'setup-dired)
