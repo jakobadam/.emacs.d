@@ -58,20 +58,19 @@
   (package-install 'use-package))
 
 (require 'use-package)
+;; No need for `:ensure t` to download package
+(setq use-package-always-ensure t)
 
 ;; Load up a collection of enhancements to Emacs Lisp, including
 ;; dash, s for string manipulation, and f for file manipulation.
 (require 'cl)
 
 (use-package dash
-  :ensure t
   :config (eval-after-load "dash" '(dash-enable-font-lock)))
 
-(use-package s
-  :ensure t)
+(use-package s)
 
-(use-package f
-  :ensure t)
+(use-package f)
 
 ;; Variables
 ;;
@@ -120,15 +119,14 @@
 
 ;; Automatically wrapping when you get to the end of a line (or the
 ;; fill-region):
-(use-package fill
-  :bind (("C-c T f" . auto-fill-mode)
-         ("C-c T t" . toggle-truncate-lines))
-  :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
-  :diminish auto-fill-mode)
+;; (use-package fill
+;;   :bind (("C-c T f" . auto-fill-mode)
+;;          ("C-c T t" . toggle-truncate-lines))
+;;   :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+;;   :diminish auto-fill-mode)
 
 ;; Key Bindings - Display Command Sequences
 (use-package which-key
-  :ensure t
   :defer 10
   :diminish which-key-mode
   :config (which-key-mode 1))
@@ -139,7 +137,6 @@
 ;; redo+ plugin (which I can’t seem to get working well).
 
 (use-package undo-tree
-  :ensure t
   :diminish undo-tree-mode
   :init
   (global-undo-tree-mode 1)
@@ -150,7 +147,6 @@
 
 ;; Key Bindings - Jumping to Windows
 (use-package ace-window
-  :ensure t
   :init
     ;; use home rows for window selection
     (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
@@ -159,13 +155,11 @@
 
 ;; Key Bindings - Better Jumping
 (use-package avy
-  :ensure t
   :init (setq avy-background t)
   :bind ("C-;" . avy-goto-char-timer))
 
 ;; Wrap selected text
 (use-package wrap-region
-  :ensure   t
   :config
   (wrap-region-global-mode t)
   (wrap-region-add-wrappers
@@ -188,13 +182,11 @@
 ;; Loading and Finding Files - Find file in project
 ;; https://github.com/technomancy/find-file-in-project
 (use-package find-file-in-project
-  :ensure t
   :bind ("C-x f" . find-file-in-project)
   ;; inspiration for more bindings https://github.com/magnars/.emacs.d/blob/5ff65739ebda23cfeffa6f70a3c7ecf49b6154ae/settings/key-bindings.el#L314
   )
 
 (use-package projectile
-  :ensure t
   :init
   (setq projectile-completion-system 'ivy)
   :config
@@ -203,7 +195,6 @@
 
 ;; Loading and finding files - Dired Options
 (use-package dired-launch
-  :ensure t
   :config (when (eq system-type 'windows-nt)
             (setq dired-launch-default-launcher '("start")))
   :init (dired-launch-enable)
@@ -211,24 +202,20 @@
 
 ;; The dired-x project seems useful:
 ;; https://www.masteringemacs.org/article/dired-shell-commands-find-xargs-replacement
-(use-package dired-x)
+;;(use-package dired-x)
 
 
 ;; Save buffers on de-focus
 (use-package super-save
-  :ensure t
   :config
   (super-save-mode +1))
 
-(use-package flx
-  :ensure t)
+(use-package flx)
 
-(use-package ivy-hydra
-  :ensure t)
+(use-package ivy-hydra)
 
 ;; TODO: When renaming ivy should be disabled, for now use C-M-j
 (use-package ivy
-  :ensure t
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
@@ -244,13 +231,11 @@
   )
 
 (use-package swiper
-  :ensure t
   :config
   (global-set-key "\C-s" 'swiper)
   )
 
 (use-package counsel
-  :ensure t
   :config
   (global-set-key (kbd "M-x") 'counsel-M-x)
   (global-set-key (kbd "C-x C-m") 'counsel-M-x)
@@ -268,53 +253,48 @@
 
 ;; Auto Complete - M-n M-p or M-1 to select
 (use-package company
-  :ensure t
   :init
   (setq company-dabbrev-ignore-case t
-        company-show-numbers t)
+        company-show-numbers t
+        company-tooltip-align-annotations t)
   (add-hook 'after-init-hook 'global-company-mode)
   :config
   (add-to-list 'company-backends 'company-math-symbols-unicode)
+
   :bind ("C-:" . company-complete)  ; In case I don't want to wait
   :diminish company-mode)
 
 ;; Take advantage of idle time by displaying some documentation using
 ;; company-quickhelp project.
 (use-package company-quickhelp
-  :ensure t
   :config
   (company-quickhelp-mode 1))
 
 ;; Yasnippets
 (use-package yasnippet
-  :ensure t
   :init
   (yas-global-mode 1)
   :config
   (add-to-list 'yas-snippet-dirs (jd/emacs-subdirectory "snippets")))
 
 ;; also load the snippets:)
-(use-package yasnippet-snippets
-  :ensure t)
+(use-package yasnippet-snippets)
 
 ;; Code folding
 ;; C-return - toggle element
 ;; C-M-return - toggle all
 ;; C-S-return - hide parent
 (use-package yafolding
-  :ensure t
   :init (add-hook 'prog-mode-hook (lambda () (yafolding-mode)))
   )
 
 ;; https://editorconfig.org/
 (use-package editorconfig
-  :ensure t
   :config
   (editorconfig-mode 1))
 
 ;; Grey out everything else than highligt region C-x n n, C-x n w
-(use-package fancy-narrow
-  :ensure t)
+(use-package fancy-narrow)
 
 ;; always show matching paren
 (use-package paren
@@ -352,7 +332,6 @@
 
 ;; Move code blocks with M-S
 (use-package move-text
-  :ensure t
   :bind
   (([(meta shift up)] . move-text-up)
    ([(meta shift i)] . move-text-up)
@@ -361,19 +340,16 @@
 
 ;; Different colors on delimiters...
 (use-package rainbow-delimiters
-  :ensure t
   :config (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
   )
 
 ;; Colorize #0000ff
 (use-package rainbow-mode
-  :ensure t
   :config
   (add-hook 'prog-mode-hook 'rainbow-mode))
 
 ;; nicer ui for query replace
 (use-package anzu
-  :ensure t
   :bind (("M-%" . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp))
   :config
@@ -393,15 +369,12 @@
   )
 
 (use-package markdown-mode
-  :ensure t
   :mode (("\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . gfm-mode))
   :config
   (setq markdown-fontify-code-blocks-natively t))
 
-
 (use-package crux
-  :ensure t
   :bind (("C-c o" . crux-open-with)
          ;;("M-o" . crux-smart-open-line)
          ("C-c n" . crux-cleanup-buffer-or-region)
@@ -429,11 +402,37 @@
          ("C-c s" . crux-ispell-word-then-abbrev)))
 
 (use-package tide
-  :ensure t
   :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-         (before-save . tide-format-before-save)))
+  :hook
+  (typescript-mode . tide-setup)
+  (typescript-mode . tide-hl-identifier-mode)
+  (before-save . tide-format-before-save)
+  :config
+  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+  )
+
+;; (defun setup-tide-mode ()
+;;   (interactive)
+;;   (tide-setup)
+;;   (flycheck-mode +1)
+;;   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+;;   (eldoc-mode +1)
+;;   (tide-hl-identifier-mode +1)
+;;   ;; company is an optional dependency. You have to
+;;   ;; install it separately via package-install
+;;   ;; `M-x package-install [ret] company`
+;;   (company-mode +1))
+
+;; ;; aligns annotation to the right hand side
+;; (setq company-tooltip-align-annotations t)
+
+;; ;; formats the buffer before saving
+;; (add-hook 'before-save-hook 'tide-format-before-save)
+
+;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+(setq org-agenda-files '("c:/cura/todo/"))
 
 (require 'setup-magit)
 (require 'setup-dired)
@@ -445,14 +444,12 @@
 (require 'my-bindings)
 
 (use-package git-gutter
-  :ensure t
   :init
   (global-git-gutter-mode t)
   )
 
 ;; Change Theme Hint: M-x load-theme solarized-light
 (use-package solarized-theme
-  :ensure t
   :init
   ;; don't load theme in terminal
   (when (window-system)
