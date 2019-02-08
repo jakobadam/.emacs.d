@@ -17,7 +17,6 @@
 
 
 ;; Killing text
-(global-set-key (kbd "C-w") 'kill-region-or-backward-word)
 (global-set-key (kbd "C-c C-w") 'kill-to-beginning-of-line)
 
 ;; Cursor control with ijkl
