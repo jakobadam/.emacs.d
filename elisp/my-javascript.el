@@ -26,22 +26,6 @@
 (define-key js2-mode-map (kbd "M-j") 'backward-char)
 
 
-(use-package tern
-  :ensure t
-  :init (add-hook 'js2-mode-hook (lambda () (tern-mode t)))
-  :config
-  (use-package company-tern
-    :ensure t
-    :init (add-to-list 'company-backends 'company-tern)))
-
-;;   The following additional keys are bound:
-
-;; - ~M-.~ :: Jump to the definition of the thing under the cursor.
-;; - M-, :: Brings you back to last place you were when you pressed ~M-.~.
-;; - ~C-c C-r~ :: Rename the variable under the cursor.
-;; - ~C-c C-c~ :: Find the type of the thing under the cursor.
-;; - ~C-c C-d~ :: Find docs of the thing under the cursor. Press again to open the associated URL (if any).
-
 ;; Refactoring JavaScript
 
 ;;  The [[https://github.com/magnars/js2-refactor.el][js2-refactor]]
@@ -75,23 +59,3 @@
   :ensure t
   :init   (add-hook 'js2-mode-hook 'js2-refactor-mode)
   :config (js2r-add-keybindings-with-prefix "C-c ."))
-
-
-
-;; I also configure Skewer for my [[file:emacs-web.org][HTML and CSS]]
-;; files, we need to do the same for JavaScript:
-
-;; (use-package skewer-mode
-;;   :ensure t
-;;   :init (add-hook 'js2-mode-hook 'skewer-mode))
-
- ;;  Kick things off with =run-skewer=, and then:
-
- ;; * C-x C-e :: `skewer-eval-last-expression'
- ;; * C-M-x   :: `skewer-eval-defun'
- ;; * C-c C-k :: `skewer-load-buffer'
-
-;; * Technical Artifacts
-
-;;  Make sure that we can simply =require= this library.
-
