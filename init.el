@@ -254,6 +254,8 @@
 (use-package company
   :init
   (setq company-dabbrev-ignore-case t
+        company-dabbrev-downcase 0
+        company-idle-delay 0
         company-show-numbers t
         company-tooltip-align-annotations t)
   (add-hook 'after-init-hook 'global-company-mode)
@@ -400,6 +402,7 @@
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c s" . crux-ispell-word-then-abbrev)))
 
+(use-package lorem-ipsum)
 (use-package tide)
 (defun setup-tide-mode ()
   (interactive)
