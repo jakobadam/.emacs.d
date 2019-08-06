@@ -384,6 +384,7 @@
          ("C-c u" . crux-view-url)
          ("C-c e" . crux-eval-and-replace)
          ("C-c w" . crux-swap-windows)
+         ("C-c d" . crux-duplicate-current-line-or-region)
          ("C-c D" . crux-delete-file-and-buffer)
          ("C-c r" . crux-rename-buffer-and-file)
          ("C-c t" . crux-visit-term-buffer)
@@ -420,7 +421,7 @@
 
 (require 'setup-magit)
 (require 'setup-dired)
-(require 'my-javascript)
+
 (require 'my-html)
 (require 'editing-defuns)
 (require 'buffer-defuns)
