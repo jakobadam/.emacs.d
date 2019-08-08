@@ -414,6 +414,12 @@
 (add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
 
 
+;; auto edit opposite tag in html
+(use-package tagedit
+  :init (tagedit-add-experimental-features)
+  :config (add-hook 'html-mode-hook (lambda () (tagedit-mode 1)))
+  )
+
 (setq org-agenda-files '("c:/cura/todo/"))
 
 (require 'setup-magit)
