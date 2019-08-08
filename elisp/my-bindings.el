@@ -6,8 +6,6 @@
 ;;(global-set-key (kbd "C-.") 'hippie-expand-no-case-fold)
 ;(global-set-key (kbd "C-:") 'hippie-expand-lines)
 ;;(global-set-key (kbd "C-,") 'completion-at-point)
-;; Expand region (increases selected region by semantic units)
-(global-set-key (kbd "C-'") 'er/expand-region)
 
 ;; Use shell-like backspace C-h, rebind help to F1
 ;; (define-key key-translaion-map [?\C-h] [?\C-?])

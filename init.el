@@ -420,6 +420,11 @@
   :config (add-hook 'html-mode-hook (lambda () (tagedit-mode 1)))
   )
 
+(use-package expand-region
+  :config
+  (global-set-key (kbd "C-'") 'er/expand-region)
+  )
+
 (use-package org
   :config
   (org-babel-do-load-languages 'org-babel-load-languages
