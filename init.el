@@ -178,13 +178,6 @@
      ))
   :diminish wrap-region-mode)
 
-;; Loading and Finding Files - Find file in project
-;; https://github.com/technomancy/find-file-in-project
-(use-package find-file-in-project
-  :bind ("C-x f" . find-file-in-project)
-  ;; inspiration for more bindings https://github.com/magnars/.emacs.d/blob/5ff65739ebda23cfeffa6f70a3c7ecf49b6154ae/settings/key-bindings.el#L314
-  )
-
 (use-package projectile
   :init
   (setq projectile-completion-system 'ivy)
