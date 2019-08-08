@@ -416,6 +416,10 @@
   )
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
+(add-hook 'js-mode-hook #'setup-tide-mode)
+
+(add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
+
 
 (setq org-agenda-files '("c:/cura/todo/"))
 
