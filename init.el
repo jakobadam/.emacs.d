@@ -420,6 +420,18 @@
   :config (add-hook 'html-mode-hook (lambda () (tagedit-mode 1)))
   )
 
+(use-package org
+  :config
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((shell      . t)
+                                 (js         . t)
+                                 (emacs-lisp . t)
+                                 (perl       . t)
+                                 (python     . t)
+                                 (ruby       . t)
+                                 (css        . t)
+                                 (plantuml   . t))))
+
 (setq org-agenda-files '("c:/cura/todo/"))
 
 (require 'setup-magit)
