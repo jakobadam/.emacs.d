@@ -467,13 +467,23 @@
   (global-git-gutter-mode t)
   )
 
-;; Change Theme Hint: M-x load-theme solarized-light
-(use-package solarized-theme
+;; ;; Change Theme Hint: M-x load-theme solarized-light
+;; (use-package solarized-theme
+;;   :init
+;;   ;; don't load theme in terminal
+;;   (when (window-system)
+;;     (load-theme 'solarized-dark t)
+;;     )
+;;   )
+
+(use-package doom-themes
   :init
-  ;; don't load theme in terminal
-  (when (window-system)
-    (load-theme 'solarized-dark t)
-    )
+  (load-theme 'doom-one t)
+  (doom-themes-org-config)
+  )
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
   )
 
 ;; start server
