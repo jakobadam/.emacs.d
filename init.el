@@ -397,6 +397,23 @@
          ("C-c s" . crux-ispell-word-then-abbrev)))
 
 (use-package lorem-ipsum)
+
+;; C-c P: copy a path to the object at point
+;; C-c C-k: replace the sexp with null
+(use-package json-mode)
+
+;; auto format json on save
+(use-package prettier-js
+  :config (add-hook 'json-mode-hook 'prettier-js-mode)
+  )
+
+;; Format code nicely when yanking
+(defun my-yank (&optional arg)
+  (if (member major-mode '(json-mode js-mode tide-mode))
+      (prettier-js))
+  )
+(advice-add 'yank :after 'my-yank)
+
 (use-package tide)
 (defun setup-tide-mode ()
   (interactive)
@@ -409,10 +426,7 @@
   )
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
-(add-hook 'js-mode-hook #'setup-tide-mode)
-
 (add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
-
 
 ;; auto edit opposite tag in html
 (use-package tagedit
