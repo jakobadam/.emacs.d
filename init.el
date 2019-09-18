@@ -274,12 +274,11 @@
 ;; also load the snippets:)
 (use-package yasnippet-snippets)
 
-;; Code folding
-;; C-return - toggle element
-;; C-M-return - toggle all
-;; C-S-return - hide parent
-(use-package yafolding
-  :init (add-hook 'prog-mode-hook (lambda () (yafolding-mode)))
+(use-package vimish-fold
+  :init
+  (global-set-key (kbd "<C-return>") 'vimish-fold)
+  :config
+  (vimish-fold-global-mode +1)
   )
 
 ;; https://editorconfig.org/
