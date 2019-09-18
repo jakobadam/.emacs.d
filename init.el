@@ -430,7 +430,9 @@
 
 ;; auto edit opposite tag in html
 (use-package tagedit
-  :init (tagedit-add-experimental-features)
+  :init
+  (tagedit-add-experimental-features)
+  (unbind-key (kbd "#") tagedit-mode-map)
   :config (add-hook 'html-mode-hook (lambda () (tagedit-mode 1)))
   )
 
