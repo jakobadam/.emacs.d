@@ -294,6 +294,11 @@
   :config
   (show-paren-mode +1))
 
+(use-package smartparens
+  :config
+  (require 'smartparens-config)
+  (smartparens-global-mode +1))
+
 ;; saveplace remembers your location in a file when saving files
 (use-package saveplace
   :config
