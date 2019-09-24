@@ -111,8 +111,8 @@
   ;; cool, but can't do that for the current project
   ;;(add-hook 'before-save-hook 'whitespace-cleanup)
   :config
-  (setq whitespace-line-column 80) ;; limit line length
-  (setq whitespace-style '(face tabs empty trailing lines-tail)))
+  (setq whitespace-line-column 80)
+  (setq whitespace-style '(face tabs empty trailing))) ;; lines-tail
 
 ;; Display Settings - Fill Mode
 
