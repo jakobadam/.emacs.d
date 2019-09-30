@@ -13,10 +13,6 @@
 
 ;; (global-set-key (kbd "M-h") 'kill-region-or-backward-word)
 
-
-;; Killing text
-(global-set-key (kbd "C-c C-w") 'kill-to-beginning-of-line)
-
 ;; Cursor control with ijkl
 (global-set-key "\M-k"     'next-line)
 (global-set-key "\M-i"     'previous-line)
