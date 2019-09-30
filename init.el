@@ -474,15 +474,6 @@
   (global-git-gutter-mode t)
   )
 
-;; ;; Change Theme Hint: M-x load-theme solarized-light
-;; (use-package solarized-theme
-;;   :init
-;;   ;; don't load theme in terminal
-;;   (when (window-system)
-;;     (load-theme 'solarized-dark t)
-;;     )
-;;   )
-
 (use-package doom-themes
   :init
   (load-theme 'doom-one t)
