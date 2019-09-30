@@ -50,9 +50,11 @@
 (define-key global-map (kbd "C-+") 'text-scale-increase)
 (define-key global-map (kbd "C--") 'text-scale-decrease)
 
-;; 
 (global-set-key (kbd "C-x C-o") 'find-file-other-window)
 (global-set-key (kbd "C-x C-r") 'find-alternate-file-with-sudo)
 
 ;; use ibuffer
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+;; kill buffer directly without asking
+(global-set-key (kbd "C-x C-k") 'kill-current-buffer)
