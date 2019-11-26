@@ -409,7 +409,9 @@
 
 ;; auto format json on save
 (use-package prettier-js
-  :config (add-hook 'json-mode-hook 'prettier-js-mode)
+  :config
+  (add-hook 'json-mode-hook 'prettier-js-mode)
+  (add-hook 'typescript-mode-hook 'prettier-js-mode)
   )
 
 ;; Format code nicely when yanking
@@ -430,8 +432,18 @@
   (company-mode +1)
   )
 
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
-(add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
+;; typescript setup
+(use-package tide
+  :config
+  (progn
+    (company-mode +1)
+    ;; aligns annotation to the right hand side
+    (setq company-tooltip-align-annotations t)
+    (add-hook 'typescript-mode-hook #'setup-tide-mode)
+    (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
+    (add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
+    ))
+
 
 ;; auto edit opposite tag in html
 (use-package tagedit
