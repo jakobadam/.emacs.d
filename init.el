@@ -435,6 +435,8 @@
 ;; typescript setup
 (use-package tide
   :config
+  (setq tide-completion-detailed t
+        tide-always-show-documentation t)
   (progn
     (company-mode +1)
     ;; aligns annotation to the right hand side
