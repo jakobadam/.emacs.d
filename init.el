@@ -215,7 +215,7 @@
   ;; Change matching: C-o m
   (setq ivy-re-builders-alist
         '((swiper . ivy--regex-plus)
-          (t      . ivy--regex-fuzzy)
+          ;;(t      . ivy--regex-fuzzy)
           ))
   (setq ivy-initial-inputs-alist nil)
   (setq enable-recursive-minibuffers t)
@@ -409,7 +409,10 @@
 
 ;; auto format json on save
 (use-package prettier-js
-  :config (add-hook 'json-mode-hook 'prettier-js-mode)
+  :config
+  (add-hook 'json-mode-hook 'prettier-js-mode)
+  (add-hook 'web-mode 'prettier-js-mode)
+  (add-hook 'css-mode 'prettier-js-mode)
   )
 
 ;; Format code nicely when yanking
@@ -432,6 +435,7 @@
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
 (add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx$" . typescript-mode))
 
 ;; auto edit opposite tag in html
 (use-package tagedit
@@ -456,7 +460,18 @@
                                  (python     . t)
                                  (ruby       . t)
                                  (css        . t)
-                                 (plantuml   . t))))
+                                 (plantuml   . t)))
+  ;; Resume clocking task when emacs is restarted
+  (org-clock-persistence-insinuate)
+  ;; Save the running clock and all clock history when exiting Emacs, load it on startup
+  (setq org-clock-persist t)
+  ;; Resume clocking task on clock-in if the clock is open
+  (setq org-clock-in-resume t)
+  ;; Do not prompt to resume an active clock, just resume it
+  (setq org-clock-persist-query-resume nil)
+  ;; Report in hour only
+  (setq org-duration-format 'h:mm)
+  )
 
 (setq org-agenda-files '("c:/cura/todo/"))
 
