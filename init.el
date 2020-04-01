@@ -413,6 +413,7 @@
   (add-hook 'json-mode-hook 'prettier-js-mode)
   (add-hook 'web-mode 'prettier-js-mode)
   (add-hook 'css-mode 'prettier-js-mode)
+  (add-hook 'typescript-mode-hook 'prettier-js-mode)
   )
 
 ;; Format code nicely when yanking
@@ -422,20 +423,20 @@
   )
 (advice-add 'yank :after 'my-yank)
 
-(use-package tide)
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  (company-mode +1)
-  )
-
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
-(add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
-(add-to-list 'auto-mode-alist '("\\.tsx$" . typescript-mode))
+;; typescript setup
+(use-package tide
+  :config
+  (setq tide-completion-detailed t
+        tide-always-show-documentation t)
+  (progn
+    (company-mode +1)
+    ;; aligns annotation to the right hand side
+    (setq company-tooltip-align-annotations t)
+    (add-hook 'typescript-mode-hook #'setup-tide-mode)
+    (add-to-list 'auto-mode-alist '("\\.ts$" . typescript-mode))
+    (add-to-list 'auto-mode-alist '("\\.tsx$" . typescript-mode))
+    (add-to-list 'auto-mode-alist '("\\.js$" . typescript-mode))
+    ))
 
 ;; auto edit opposite tag in html
 (use-package tagedit
