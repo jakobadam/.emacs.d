@@ -413,6 +413,7 @@
   (add-hook 'json-mode-hook 'prettier-js-mode)
   (add-hook 'web-mode 'prettier-js-mode)
   (add-hook 'css-mode 'prettier-js-mode)
+  (add-hook 'scss-mode 'prettier-js-mode)
   (add-hook 'typescript-mode-hook 'prettier-js-mode)
   )
 
