@@ -103,7 +103,6 @@
   (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
 
 ;; Display Settings - Whitespace Mode
-
 (use-package whitespace
   :init
   (dolist (hook '(prog-mode-hook text-mode-hook))
@@ -184,6 +183,16 @@
   :config
   ;;(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (projectile-mode +1))
+
+;; Launch Windows browser when using WSL
+(when (and (eq system-type 'gnu/linux)
+           (string-match
+            "Linux.*Microsoft.*Linux"
+            (shell-command-to-string "uname -a")))
+  (setq
+   browse-url-generic-program  "/mnt/c/Windows/System32/cmd.exe"
+   browse-url-generic-args     '("/c" "start")
+   browse-url-browser-function #'browse-url-generic))
 
 ;; Loading and finding files - Dired Options
 (use-package dired-launch
